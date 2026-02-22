@@ -9,8 +9,8 @@
     <style>
         :root {
             --accent: #ff003c;
-            /* Увеличена яркость подложки и границ для видимости на черном фоне */
-            --glass: rgba(255, 255, 255, 0.08); 
+            /* Увеличена яркость для видимости на черном фоне */
+            --glass: rgba(255, 255, 255, 0.1); 
             --border: rgba(255, 255, 255, 0.25);
             --bg: #000000;
         }
@@ -29,7 +29,7 @@
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1;
-            filter: blur(80px); /* Увеличено размытие для мягкости */
+            filter: blur(80px);
             opacity: 0.5;
         }
 
@@ -46,7 +46,7 @@
             position: fixed;
             inset: 0; background: #000;
             display: flex; justify-content: center; align-items: center;
-            z-index: 1000; transition: 0.8s ease-out;
+            z-index: 1000; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .loader-cross {
@@ -69,7 +69,7 @@
             height: 100vh; perspective: 1200px;
         }
 
-        /* ПЕРЕХОД "ПЛАВЛЕНИЕ" - уменьшена сила размытия для четкости текста */
+        /* ПЕРЕХОД "ПЛАВЛЕНИЕ" - размытие уменьшено для четкости */
         .page-transition-container {
             filter: url('#goo');
             width: 90%; max-width: 400px;
@@ -103,9 +103,9 @@
 
         h1 { font-weight: 800; font-size: 26px; margin-bottom: 25px; letter-spacing: -1px; text-transform: uppercase; color: #fff; }
 
-        /* ИСПРАВЛЕННЫЕ ПОЛЯ ВВОДА (Контрастные) */
+        /* ИСПРАВЛЕННЫЕ КОНТРАСТНЫЕ ПОЛЯ */
         input, textarea {
-            background: rgba(255, 255, 255, 0.07);
+            background: rgba(255, 255, 255, 0.08); /* Светлая подложка */
             border: 1px solid rgba(255, 255, 255, 0.2);
             padding: 18px; border-radius: 20px;
             color: #fff; margin-bottom: 20px;
@@ -114,20 +114,16 @@
             outline: none; transition: 0.3s;
         }
 
-        input:focus, textarea:focus { 
-            border-color: var(--accent); 
-            background: rgba(255, 255, 255, 0.12);
-        }
+        input::placeholder, textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
 
-        /* Варианты выбора жанра */
+        input:focus, textarea:focus { border-color: var(--accent); background: rgba(255, 255, 255, 0.15); }
+
         .option {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--border);
             padding: 18px; border-radius: 20px;
             margin-bottom: 12px; cursor: pointer;
-            transition: 0.3s;
-            text-align: center;
-            font-weight: 600;
+            transition: 0.3s; text-align: center; font-weight: 600;
         }
 
         .option.selected {
@@ -147,7 +143,7 @@
 
         .btn-next:active { transform: scale(0.96); }
 
-        .svg-filters { position: absolute; width: 0; height: 0; visibility: hidden; }
+        .svg-filters { position: absolute; visibility: hidden; width: 0; height: 0; }
     </style>
 </head>
 <body>
@@ -166,7 +162,7 @@
                 <input type="text" id="user-name" placeholder="Твоё Имя">
                 <input type="tel" id="user-phone" placeholder="Телефон (необязательно)">
                 <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 20px;">
-                    Ник в Telegram привяжется автоматически.
+                    Ник в Telegram подтянется автоматически.
                 </p>
                 <button class="btn-next" onclick="goToStep(2)">Выбрать жанр</button>
             </div>
@@ -192,7 +188,7 @@
         </div>
     </div>
 
-    <!-- ИСПРАВЛЕННЫЙ ФИЛЬТР (уменьшено размытие для четкости текста) -->
+    <!-- ИСПРАВЛЕННЫЙ ФИЛЬТР (уменьшено размытие с 10 до 5) -->
     <svg class="svg-filters">
         <defs>
             <filter id="goo">
@@ -207,24 +203,22 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // 1. Исправление лоадера: 1.5 сек
         window.onload = () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.remove(), 800);
+                if(loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => loader.remove(), 800);
+                }
             }, 1500);
         };
 
-        // 2. Параллакс
         document.addEventListener('mousemove', (e) => {
             const moveX = (e.clientX - window.innerWidth / 2) / 25;
             const moveY = (e.clientY - window.innerHeight / 2) / 25;
-
             document.querySelectorAll('.smoke-orb').forEach(orb => {
                 orb.style.transform = `translate(${moveX}px, ${moveY}px)`;
             });
-
             const activeCard = document.querySelector('.glass-card.active');
             if (activeCard) {
                 activeCard.style.transform = `rotateY(${moveX/2}deg) rotateX(${-moveY/2}deg)`;
@@ -265,9 +259,7 @@
             orderData.name = document.getElementById('user-name').value;
             orderData.phone = document.getElementById('user-phone').value;
             orderData.comment = document.getElementById('order-comment').value;
-
             if (!orderData.comment) return tg.showAlert("Заполните детали заказа!");
-            
             tg.sendData(JSON.stringify(orderData));
         }
     </script>
