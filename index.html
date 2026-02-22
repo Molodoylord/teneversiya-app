@@ -8,13 +8,13 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(20, 20, 25, 0.4);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glass-highlight: rgba(255, 255, 255, 0.15);
-            --text-main: #f0f0f0;
+            --glass-bg: rgba(20, 20, 25, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-highlight: rgba(255, 255, 255, 0.2);
+            --text-main: #ffffff;
             --accent: #d30033; /* Готический красный */
         }
-
+        
         * {
             box-sizing: border-box;
             margin: 0;
@@ -24,15 +24,15 @@
         }
 
         body, html {
-            background-color: #050507;
+            background-color: #030305;
             color: var(--text-main);
-            overflow: hidden; /* Запрещаем скролл, всё внутри карточек */
+            overflow: hidden; 
             height: 100vh;
             width: 100vw;
             perspective: 1000px;
         }
 
-        /* --- ФОНОВАЯ ДЫМКА И ПАРАЛЛАКС --- */
+        /* --- ФОНОВАЯ ДЫМКА --- */
         .ambient-background {
             position: fixed;
             top: -50%; left: -50%;
@@ -40,39 +40,34 @@
             z-index: 0;
             pointer-events: none;
             background: 
-                radial-gradient(circle at 50% 50%, rgba(30, 0, 10, 0.8), transparent 60%),
-                radial-gradient(circle at 80% 20%, rgba(10, 10, 30, 0.6), transparent 50%),
-                radial-gradient(circle at 20% 80%, rgba(50, 0, 20, 0.5), transparent 50%);
-            filter: blur(80px);
-            animation: smokeMove 20s infinite alternate ease-in-out;
+                radial-gradient(circle at 50% 50%, rgba(30, 0, 10, 0.9), transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(10, 10, 30, 0.7), transparent 40%),
+                radial-gradient(circle at 20% 80%, rgba(60, 0, 20, 0.6), transparent 50%);
+            filter: blur(60px);
+            animation: smokeMove 15s infinite alternate ease-in-out;
         }
 
         @keyframes smokeMove {
             0% { transform: translate(0, 0) scale(1); }
-            50% { transform: translate(-5%, 5%) scale(1.1); }
-            100% { transform: translate(5%, -5%) scale(1); }
+            50% { transform: translate(-2%, 3%) scale(1.05); }
+            100% { transform: translate(3%, -2%) scale(1); }
         }
 
-        /* Парящие стеклянные осколки по бокам (визуальное заполнение) */
+        /* Осколки стекла */
         .shard {
             position: absolute;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0));
+            backdrop-filter: blur(15px);
             border: 1px solid var(--glass-border);
             border-radius: 20% 80% 30% 70% / 50% 40% 60% 50%;
             z-index: 1;
-            animation: float 10s infinite ease-in-out alternate;
+            animation: float 8s infinite ease-in-out alternate;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
         }
-        .shard-1 { top: 10%; left: -5%; width: 150px; height: 150px; animation-delay: 0s; }
-        .shard-2 { bottom: 20%; right: -10%; width: 200px; height: 250px; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; animation-delay: -3s; }
-        .shard-3 { top: 40%; right: 5%; width: 80px; height: 80px; animation-delay: -5s; }
+        .shard-1 { top: 5%; left: -10%; width: 180px; height: 180px; animation-delay: 0s; }
+        .shard-2 { bottom: 10%; right: -5%; width: 220px; height: 250px; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; animation-delay: -2s; }
 
-        @keyframes float {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-30px) rotate(15deg); }
-        }
-
-        /* --- 3D ЗАГРУЗОЧНЫЙ ЭКРАН (НАДГРОБНЫЙ КРЕСТ) --- */
+        /* --- 3D ЗАГРУЗОЧНЫЙ ЭКРАН --- */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -81,36 +76,31 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
-            perspective: 800px;
+            transition: opacity 0.5s ease;
+            perspective: 1000px;
         }
+
+        /* Готический надгробный крест */
         .cross-3d {
             position: relative;
-            width: 60px;
-            height: 140px;
+            width: 80px; height: 160px;
             transform-style: preserve-3d;
-            animation: spinCross 1.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+            animation: riseCross 1.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
-        .cross-vertical, .cross-horizontal {
+        .cross-core {
             position: absolute;
-            background: linear-gradient(180deg, #444, #111);
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 20px rgba(211, 0, 51, 0.4);
-            border: 1px solid #333;
+            background: linear-gradient(180deg, #2a2a2a, #0a0a0a);
+            box-shadow: inset 0 0 10px rgba(0,0,0,1), 0 0 30px rgba(211, 0, 51, 0.6);
+            border: 2px solid #444;
+            border-radius: 4px;
         }
-        .cross-vertical {
-            width: 30px; height: 140px;
-            left: 15px; top: 0;
-            border-radius: 3px;
-        }
-        .cross-horizontal {
-            width: 90px; height: 30px;
-            left: -15px; top: 40px;
-            border-radius: 3px;
-        }
-        @keyframes spinCross {
-            0% { transform: rotateY(-180deg) rotateX(20deg) scale(0.5); opacity: 0; }
-            50% { opacity: 1; }
-            100% { transform: rotateY(0deg) rotateX(0deg) scale(1); }
+        .cross-vertical { width: 30px; height: 160px; left: 25px; top: 0; }
+        .cross-horizontal { width: 100px; height: 30px; left: -10px; top: 40px; }
+
+        @keyframes riseCross {
+            0% { transform: rotateY(-90deg) rotateX(30deg) scale(0.3) translateY(100px); opacity: 0; }
+            70% { transform: rotateY(10deg) rotateX(-5deg) scale(1.1) translateY(-10px); opacity: 1; }
+            100% { transform: rotateY(0deg) rotateX(0deg) scale(1) translateY(0); opacity: 1; }
         }
 
         /* --- ОСНОВНОЙ КОНТЕЙНЕР --- */
@@ -127,210 +117,165 @@
         /* --- ЭФФЕКТ ЖИДКОГО СТЕКЛА (ТАХО) --- */
         .glass-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(35px) saturate(150%);
-            -webkit-backdrop-filter: blur(35px) saturate(150%);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
             border: 1px solid var(--glass-border);
             box-shadow: 
-                0 30px 60px rgba(0,0,0,0.6),
-                inset 0 1px 0 var(--glass-highlight),
-                inset 0 -1px 0 rgba(0,0,0,0.3);
-            border-radius: 24px;
-            width: 100%;
-            max-width: 420px;
-            padding: 30px;
+                0 40px 80px rgba(0,0,0,0.8), 
+                inset 0 1px 1px var(--glass-highlight),
+                inset 0 -1px 1px rgba(0,0,0,0.5);
+            border-radius: 28px;
+            width: 100%; max-width: 400px;
+            padding: 35px 25px;
             position: absolute;
             opacity: 0;
             visibility: hidden;
-            transform: scale(0.9) translateY(30px);
-            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            transform: scale(0.95) translateY(20px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; gap: 20px;
         }
 
         .glass-card.active {
-            opacity: 1;
-            visibility: visible;
+            opacity: 1; visibility: visible;
             transform: scale(1) translateY(0);
         }
 
-        /* Переход "Расплавленный пластик" */
+        /* Плавление пластика (переходы) */
         .glass-card.melt-out {
-            transform: scale(1.1) translateY(-40px);
+            transform: scale(1.05) translateY(-30px);
             opacity: 0;
-            filter: blur(15px); /* Тот самый эффект плавления */
+            filter: blur(20px) contrast(150%);
         }
         .glass-card.melt-in {
-            transform: scale(0.9) translateY(40px);
+            transform: scale(0.9) translateY(30px);
             opacity: 0;
-            filter: blur(15px);
+            filter: blur(20px) contrast(150%);
         }
 
-        /* --- ТИПОГРАФИКА И ЭЛЕМЕНТЫ --- */
         h2 {
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            font-size: 22px;
-            text-align: center;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, #fff, #888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-weight: 900; text-transform: uppercase; letter-spacing: 3px;
+            font-size: 24px; text-align: center; margin-bottom: 5px;
+            background: linear-gradient(135deg, #fff, #666);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 15px rgba(0,0,0,0.8);
         }
 
-        p {
-            font-size: 14px;
-            color: #aaa;
-            text-align: center;
-            margin-bottom: 20px;
-        }
+        p { font-size: 13px; color: #bbb; text-align: center; margin-bottom: 15px; }
 
-        /* Инпуты (теперь их четко видно) */
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .input-group { display: flex; flex-direction: column; gap: 8px; position: relative; }
+        
         .input-group label {
-            font-size: 12px;
-            color: #ccc;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            padding-left: 5px;
+            font-size: 11px; color: #ddd; text-transform: uppercase;
+            letter-spacing: 2px; padding-left: 5px; font-weight: 700;
         }
+
+        /* --- ИНПУТЫ И ЭФФЕКТ РАЗРЫВА/ПЛАВЛЕНИЯ --- */
         input, textarea {
             width: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            background: rgba(10, 10, 15, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 16px;
+            padding: 16px;
+            border-radius: 14px;
+            font-size: 16px; font-weight: 500;
             outline: none;
             transition: all 0.3s ease;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-        input:focus, textarea:focus {
-            border-color: var(--accent);
-            box-shadow: 0 0 15px rgba(211, 0, 51, 0.3), inset 0 2px 5px rgba(0,0,0,0.5);
-            background: rgba(0, 0, 0, 0.6);
-        }
-        textarea {
-            resize: none;
-            height: 100px;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+            position: relative;
+            z-index: 2;
         }
 
-        /* Жанры (Сетка) */
-        .genre-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-        .genre-grid .full-width {
-            grid-column: span 2;
-        }
-        .option {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--glass-border);
-            padding: 15px 10px;
-            text-align: center;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 14px;
-            transition: all 0.3s ease;
-            user-select: none;
-        }
-        .option.selected {
-            background: var(--accent);
+        input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.3); }
+
+        textarea { resize: none; height: 110px; }
+
+        /* Анимация при вводе текста (Глитч/Плавление) */
+        input:focus, textarea:focus {
             border-color: var(--accent);
-            box-shadow: 0 0 20px rgba(211, 0, 51, 0.4);
-            color: #fff;
-            transform: translateY(-2px);
+            background: linear-gradient(45deg, rgba(20,0,0,0.8), rgba(0,0,0,0.9));
+            box-shadow: 
+                0 0 20px rgba(211, 0, 51, 0.5), 
+                inset 0 4px 15px rgba(0,0,0,0.9);
+            animation: meltTear 3s infinite linear;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        @keyframes meltTear {
+            0% { background-position: 0% 50%; box-shadow: 0 0 15px rgba(211,0,51,0.4), inset 0 2px 10px rgba(0,0,0,0.8); }
+            50% { background-position: 100% 50%; box-shadow: 0 0 25px rgba(211,0,51,0.7), inset 0 5px 20px rgba(0,0,0,1); }
+            100% { background-position: 0% 50%; box-shadow: 0 0 15px rgba(211,0,51,0.4), inset 0 2px 10px rgba(0,0,0,0.8); }
+        }
+
+        /* Жанры */
+        .genre-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .full-width { grid-column: span 2; }
+        
+        .option {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 16px 10px; text-align: center; border-radius: 14px;
+            cursor: pointer; font-weight: 700; font-size: 13px;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        
+        .option.selected {
+            background: var(--accent); border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(211, 0, 51, 0.5);
+            color: #fff; transform: translateY(-3px) scale(1.02);
         }
 
         /* Кнопка */
         .btn {
-            background: #fff;
-            color: #000;
-            border: none;
-            padding: 16px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+            background: #fff; color: #000; border: none; padding: 18px;
+            border-radius: 14px; font-size: 16px; font-weight: 900;
+            text-transform: uppercase; letter-spacing: 2px;
+            cursor: pointer; margin-top: 10px; transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(255,255,255,0.2);
         }
-        .btn:active {
-            transform: scale(0.96);
-        }
-        .btn.gothic {
-            background: var(--accent);
-            color: white;
-            box-shadow: 0 5px 20px rgba(211, 0, 51, 0.4);
-        }
+        .btn:active { transform: scale(0.95); }
+        .btn.gothic { background: var(--accent); color: white; box-shadow: 0 10px 30px rgba(211, 0, 51, 0.5); }
 
-        /* Ошибки */
-        .error-msg {
-            color: var(--accent);
-            font-size: 12px;
-            text-align: center;
-            height: 15px;
-            margin-top: -10px;
-        }
-
+        .error-msg { color: #ff4444; font-size: 12px; text-align: center; height: 15px; margin-top: -10px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <!-- 3D Загрузочный экран -->
     <div id="loader">
         <div class="cross-3d">
-            <div class="cross-vertical"></div>
-            <div class="cross-horizontal"></div>
+            <div class="cross-core cross-vertical"></div>
+            <div class="cross-core cross-horizontal"></div>
         </div>
     </div>
 
-    <!-- Фронтальный визуал -->
     <div class="ambient-background" id="parallax-bg"></div>
     <div class="shard shard-1" id="p-shard1"></div>
     <div class="shard shard-2" id="p-shard2"></div>
-    <div class="shard shard-3" id="p-shard3"></div>
 
-    <!-- Основной UI -->
     <div class="main-container" id="cards-container">
-        
-        <!-- ШАГ 1: Контакты -->
+
         <div class="glass-card active" id="step-1">
             <h2>КОНТАКТЫ</h2>
-            <p>Введи данные для обратной связи</p>
-            
+            <p>Введи данные для связи</p>
+
             <div class="input-group">
                 <label>Имя / Псевдоним *</label>
                 <input type="text" id="user-name" placeholder="Твое имя" autocomplete="off">
             </div>
-            
+
             <div class="input-group">
                 <label>Телефон (если нужен звонок)</label>
                 <input type="tel" id="user-phone" placeholder="+7 (999) 000-00-00" autocomplete="off">
             </div>
-
             <div class="error-msg" id="err-1"></div>
-            
+
             <button class="btn" onclick="nextStep(1, 2)">Далее ➔</button>
         </div>
 
-        <!-- ШАГ 2: Жанры -->
         <div class="glass-card" id="step-2">
             <h2>ЖАНР</h2>
             <p>Выбери стилистику звука</p>
-            
+
             <div class="genre-grid">
                 <div class="option" onclick="selectGenre(this)">Поп</div>
                 <div class="option" onclick="selectGenre(this)">Рок</div>
@@ -338,24 +283,21 @@
                 <div class="option" onclick="selectGenre(this)">Электронная</div>
                 <div class="option full-width" onclick="selectGenre(this)">Альтернатива</div>
             </div>
-
             <div class="error-msg" id="err-2"></div>
-            
+
             <button class="btn" onclick="nextStep(2, 3)">Далее ➔</button>
         </div>
 
-        <!-- ШАГ 3: Комментарий и отправка -->
         <div class="glass-card" id="step-3">
             <h2>ИДЕЯ</h2>
             <p>Опиши своими словами, что именно ты хочешь</p>
-            
-            <div class="input-group">
-                <label>Комментарий / Референсы</label>
-                <textarea id="user-comment" placeholder="Хочу мрачный бас, как у..."></textarea>
-            </div>
 
+            <div class="input-group">
+                <label>Комментарий / Референсы *</label>
+                <textarea id="user-comment" placeholder="Хочу мрачный бас, атмосферу как у..."></textarea>
+            </div>
             <div class="error-msg" id="err-3"></div>
-            
+
             <button class="btn gothic" onclick="submitOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
         </div>
 
@@ -366,97 +308,82 @@
         tg.expand();
         tg.ready();
 
-        // Данные заказа
         let orderData = {
-            name: '',
-            phone: '',
-            genre: '',
-            comment: '',
+            name: '', phone: '', genre: '', comment: '',
             username: tg.initDataUnsafe?.user?.username ? `@${tg.initDataUnsafe.user.username}` : 'Скрыт/Нет юзернейма'
         };
 
-        // Логика загрузчика (1.5 секунды)
+        // Гарантированное скрытие загрузчика
         window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
                 loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 800);
-            }, 1500);
+                setTimeout(() => loader.style.display = 'none', 500);
+            }, 1500); // 1.5 секунды
         });
 
-        // Параллакс эффект при движении мыши/наклоне
+        // Параллакс
         document.addEventListener('mousemove', (e) => {
-            const x = (window.innerWidth / 2 - e.pageX) / 25;
-            const y = (window.innerHeight / 2 - e.pageY) / 25;
-            
+            const x = (window.innerWidth / 2 - e.pageX) / 30;
+            const y = (window.innerHeight / 2 - e.pageY) / 30;
+
             document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
-            document.getElementById('p-shard1').style.transform = `translate(${x*1.5}px, ${y*1.5}px)`;
-            document.getElementById('p-shard2').style.transform = `translate(${-x*2}px, ${-y*2}px)`;
-            document.getElementById('cards-container').style.transform = `rotateX(${y/5}deg) rotateY(${-x/5}deg)`;
+            document.getElementById('p-shard1').style.transform = `translate(${x*1.5}px, ${y*1.5}px) rotate(${x}deg)`;
+            document.getElementById('p-shard2').style.transform = `translate(${-x*2}px, ${-y*2}px) rotate(${-y}deg)`;
+            document.getElementById('cards-container').style.transform = `rotateX(${y/4}deg) rotateY(${-x/4}deg)`;
         });
 
-        // Выбор жанра
         function selectGenre(element) {
             document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
             orderData.genre = element.innerText;
-            document.getElementById('err-2').innerText = ''; // Очистка ошибки
+            document.getElementById('err-2').innerText = ''; 
         }
 
-        // Переход между экранами ("Плавление пластика")
         function nextStep(currentNum, nextNum) {
-            // Валидация
             if (currentNum === 1) {
                 const nameInput = document.getElementById('user-name').value.trim();
                 if (!nameInput) {
-                    document.getElementById('err-1').innerText = 'Укажи имя!';
+                    document.getElementById('err-1').innerText = 'Укажи имя, чтобы я знал, как обращаться!';
                     return;
                 }
                 orderData.name = nameInput;
-                orderData.phone = document.getElementById('user-phone').value.trim();
+                orderData.phone = document.getElementById('user-phone').value.trim() || 'Не указан';
                 document.getElementById('err-1').innerText = '';
             }
-
-            if (currentNum === 2) {
-                if (!orderData.genre) {
-                    document.getElementById('err-2').innerText = 'Выбери жанр!';
-                    return;
-                }
+            if (currentNum === 2 && !orderData.genre) {
+                document.getElementById('err-2').innerText = 'Выбери жанр!';
+                return;
             }
 
             const currentCard = document.getElementById(`step-${currentNum}`);
             const nextCard = document.getElementById(`step-${nextNum}`);
 
-            // Анимация ухода текущей карточки (плавление)
+            // Эффект плавления
             currentCard.classList.remove('active');
             currentCard.classList.add('melt-out');
-
-            // Подготовка следующей карточки
             nextCard.classList.add('melt-in');
-            
+
             setTimeout(() => {
                 currentCard.classList.remove('melt-out');
-                // Анимация появления следующей
                 nextCard.classList.remove('melt-in');
                 nextCard.classList.add('active');
-            }, 300); // Быстрый и плавный переход
+            }, 400);
         }
 
-        // Отправка данных боту
         function submitOrder() {
             const comment = document.getElementById('user-comment').value.trim();
             if (!comment) {
-                document.getElementById('err-3').innerText = 'Напиши хотя бы пару слов!';
+                document.getElementById('err-3').innerText = 'Опиши идею хотя бы в паре слов!';
                 return;
             }
             orderData.comment = comment;
 
-            // Вибрация при успехе
             if (tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
             }
-
-            // Отправляем JSON боту
+            
+            // Отправляем данные боту и закрываем
             tg.sendData(JSON.stringify(orderData));
         }
     </script>
