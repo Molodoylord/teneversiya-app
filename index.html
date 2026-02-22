@@ -5,261 +5,458 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>TENEVERSIYA | SOUND DESIGN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --accent: #ff003c;
-            /* Увеличена яркость для видимости на черном фоне */
-            --glass: rgba(255, 255, 255, 0.1); 
-            --border: rgba(255, 255, 255, 0.25);
-            --bg: #000000;
+            --glass-bg: rgba(20, 20, 25, 0.4);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-highlight: rgba(255, 255, 255, 0.15);
+            --text-main: #f0f0f0;
+            --accent: #d30033; /* Готический красный */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Montserrat', sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body, html {
-            margin: 0; padding: 0;
-            background: var(--bg);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            overflow: hidden;
-            height: 100%;
+            background-color: #050507;
+            color: var(--text-main);
+            overflow: hidden; /* Запрещаем скролл, всё внутри карточек */
+            height: 100vh;
+            width: 100vw;
+            perspective: 1000px;
         }
 
-        /* ЭФФЕКТ ДЫМКИ С ПАРАЛЛАКСОМ */
-        .canvas-container {
+        /* --- ФОНОВАЯ ДЫМКА И ПАРАЛЛАКС --- */
+        .ambient-background {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            z-index: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 50% 50%, rgba(30, 0, 10, 0.8), transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(10, 10, 30, 0.6), transparent 50%),
+                radial-gradient(circle at 20% 80%, rgba(50, 0, 20, 0.5), transparent 50%);
             filter: blur(80px);
-            opacity: 0.5;
+            animation: smokeMove 20s infinite alternate ease-in-out;
         }
 
-        .smoke-orb {
+        @keyframes smokeMove {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(-5%, 5%) scale(1.1); }
+            100% { transform: translate(5%, -5%) scale(1); }
+        }
+
+        /* Парящие стеклянные осколки по бокам (визуальное заполнение) */
+        .shard {
             position: absolute;
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
-            border-radius: 50%;
-            transition: transform 0.3s ease-out;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20% 80% 30% 70% / 50% 40% 60% 50%;
+            z-index: 1;
+            animation: float 10s infinite ease-in-out alternate;
+        }
+        .shard-1 { top: 10%; left: -5%; width: 150px; height: 150px; animation-delay: 0s; }
+        .shard-2 { bottom: 20%; right: -10%; width: 200px; height: 250px; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%; animation-delay: -3s; }
+        .shard-3 { top: 40%; right: 5%; width: 80px; height: 80px; animation-delay: -5s; }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-30px) rotate(15deg); }
         }
 
-        /* ИСПРАВЛЕННЫЙ ЛОАДЕР (КРЕСТ) */
+        /* --- 3D ЗАГРУЗОЧНЫЙ ЭКРАН (НАДГРОБНЫЙ КРЕСТ) --- */
         #loader {
             position: fixed;
-            inset: 0; background: #000;
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #020202;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+            perspective: 800px;
         }
-
-        .loader-cross {
-            width: 60px; height: 60px;
+        .cross-3d {
             position: relative;
-            animation: spin 1.2s infinite;
-        }
-
-        .loader-cross::before, .loader-cross::after {
-            content: ''; position: absolute; background: var(--accent);
-            box-shadow: 0 0 20px var(--accent);
-        }
-        .loader-cross::before { top: 0; left: 27px; width: 6px; height: 60px; }
-        .loader-cross::after { top: 27px; left: 0; width: 60px; height: 6px; }
-
-        @keyframes spin { 100% { transform: rotate(450deg); } }
-
-        .app-wrapper {
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; perspective: 1200px;
-        }
-
-        /* ПЕРЕХОД "ПЛАВЛЕНИЕ" - размытие уменьшено для четкости */
-        .page-transition-container {
-            filter: url('#goo');
-            width: 90%; max-width: 400px;
-            position: relative;
-        }
-
-        /* ЖИДКОЕ СТЕКЛО (macOS Tahoe Style) */
-        .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(50px) saturate(200%);
-            -webkit-backdrop-filter: blur(50px) saturate(200%);
-            border: 1px solid var(--border);
-            border-radius: 35px;
-            padding: 35px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.8);
-            display: none;
-            flex-direction: column;
+            width: 60px;
+            height: 140px;
             transform-style: preserve-3d;
-            transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+            animation: spinCross 1.5s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
+        }
+        .cross-vertical, .cross-horizontal {
+            position: absolute;
+            background: linear-gradient(180deg, #444, #111);
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8), 0 0 20px rgba(211, 0, 51, 0.4);
+            border: 1px solid #333;
+        }
+        .cross-vertical {
+            width: 30px; height: 140px;
+            left: 15px; top: 0;
+            border-radius: 3px;
+        }
+        .cross-horizontal {
+            width: 90px; height: 30px;
+            left: -15px; top: 40px;
+            border-radius: 3px;
+        }
+        @keyframes spinCross {
+            0% { transform: rotateY(-180deg) rotateX(20deg) scale(0.5); opacity: 0; }
+            50% { opacity: 1; }
+            100% { transform: rotateY(0deg) rotateX(0deg) scale(1); }
         }
 
-        .glass-card.active { 
-            display: flex; 
-            animation: slideIn 0.8s forwards;
+        /* --- ОСНОВНОЙ КОНТЕЙНЕР --- */
+        .main-container {
+            position: relative;
+            width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            padding: 20px;
         }
 
-        @keyframes slideIn {
-            0% { opacity: 0; transform: scale(0.9) translateY(40px); }
-            100% { opacity: 1; transform: scale(1) translateY(0); }
+        /* --- ЭФФЕКТ ЖИДКОГО СТЕКЛА (ТАХО) --- */
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(35px) saturate(150%);
+            -webkit-backdrop-filter: blur(35px) saturate(150%);
+            border: 1px solid var(--glass-border);
+            box-shadow: 
+                0 30px 60px rgba(0,0,0,0.6),
+                inset 0 1px 0 var(--glass-highlight),
+                inset 0 -1px 0 rgba(0,0,0,0.3);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 420px;
+            padding: 30px;
+            position: absolute;
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.9) translateY(30px);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        h1 { font-weight: 800; font-size: 26px; margin-bottom: 25px; letter-spacing: -1px; text-transform: uppercase; color: #fff; }
+        .glass-card.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
 
-        /* ИСПРАВЛЕННЫЕ КОНТРАСТНЫЕ ПОЛЯ */
+        /* Переход "Расплавленный пластик" */
+        .glass-card.melt-out {
+            transform: scale(1.1) translateY(-40px);
+            opacity: 0;
+            filter: blur(15px); /* Тот самый эффект плавления */
+        }
+        .glass-card.melt-in {
+            transform: scale(0.9) translateY(40px);
+            opacity: 0;
+            filter: blur(15px);
+        }
+
+        /* --- ТИПОГРАФИКА И ЭЛЕМЕНТЫ --- */
+        h2 {
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #fff, #888);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        p {
+            font-size: 14px;
+            color: #aaa;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Инпуты (теперь их четко видно) */
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .input-group label {
+            font-size: 12px;
+            color: #ccc;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding-left: 5px;
+        }
         input, textarea {
-            background: rgba(255, 255, 255, 0.08); /* Светлая подложка */
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 18px; border-radius: 20px;
-            color: #fff; margin-bottom: 20px;
-            font-size: 16px; font-family: inherit;
-            width: 100%; box-sizing: border-box;
-            outline: none; transition: 0.3s;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+        }
+        input:focus, textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(211, 0, 51, 0.3), inset 0 2px 5px rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6);
+        }
+        textarea {
+            resize: none;
+            height: 100px;
         }
 
-        input::placeholder, textarea::placeholder { color: rgba(255, 255, 255, 0.4); }
-
-        input:focus, textarea:focus { border-color: var(--accent); background: rgba(255, 255, 255, 0.15); }
-
+        /* Жанры (Сетка) */
+        .genre-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .genre-grid .full-width {
+            grid-column: span 2;
+        }
         .option {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
-            padding: 18px; border-radius: 20px;
-            margin-bottom: 12px; cursor: pointer;
-            transition: 0.3s; text-align: center; font-weight: 600;
+            border: 1px solid var(--glass-border);
+            padding: 15px 10px;
+            text-align: center;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            user-select: none;
         }
-
         .option.selected {
             background: var(--accent);
-            border-color: transparent;
-            transform: scale(1.03) translateZ(30px);
-            box-shadow: 0 10px 20px rgba(255, 0, 60, 0.3);
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(211, 0, 51, 0.4);
+            color: #fff;
+            transform: translateY(-2px);
         }
 
-        .btn-next {
-            background: #fff; color: #000;
-            padding: 22px; border-radius: 25px;
-            border: none; font-weight: 800; cursor: pointer;
-            margin-top: 15px; transition: 0.3s;
-            text-transform: uppercase; letter-spacing: 1.5px;
+        /* Кнопка */
+        .btn {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(255,255,255,0.2);
+        }
+        .btn:active {
+            transform: scale(0.96);
+        }
+        .btn.gothic {
+            background: var(--accent);
+            color: white;
+            box-shadow: 0 5px 20px rgba(211, 0, 51, 0.4);
         }
 
-        .btn-next:active { transform: scale(0.96); }
+        /* Ошибки */
+        .error-msg {
+            color: var(--accent);
+            font-size: 12px;
+            text-align: center;
+            height: 15px;
+            margin-top: -10px;
+        }
 
-        .svg-filters { position: absolute; visibility: hidden; width: 0; height: 0; }
     </style>
 </head>
 <body>
-    <div class="canvas-container" id="smoke-bg">
-        <div class="smoke-orb" style="top: 15%; left: 10%;"></div>
-        <div class="smoke-orb" style="bottom: 20%; right: 5%; background: #1a1a1a;"></div>
-    </div>
 
-    <div id="loader"><div class="loader-cross"></div></div>
-
-    <div class="app-wrapper">
-        <div class="page-transition-container">
-            
-            <div id="step-1" class="glass-card active">
-                <h1>Контактные данные</h1>
-                <input type="text" id="user-name" placeholder="Твоё Имя">
-                <input type="tel" id="user-phone" placeholder="Телефон (необязательно)">
-                <p style="font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 20px;">
-                    Ник в Telegram подтянется автоматически.
-                </p>
-                <button class="btn-next" onclick="goToStep(2)">Выбрать жанр</button>
-            </div>
-
-            <div id="step-2" class="glass-card">
-                <h1>Выберите Жанр</h1>
-                <div id="genre-box">
-                    <div class="option" onclick="selectItem(this, 'genre')">Поп</div>
-                    <div class="option" onclick="selectItem(this, 'genre')">Рок</div>
-                    <div class="option" onclick="selectItem(this, 'genre')">Поп-рок</div>
-                    <div class="option" onclick="selectItem(this, 'genre')">Альтернатива</div>
-                    <div class="option" onclick="selectItem(this, 'genre')">Электронная</div>
-                </div>
-                <button class="btn-next" onclick="goToStep(3)">Детали заказа</button>
-            </div>
-
-            <div id="step-3" class="glass-card">
-                <h1>Детали заказа</h1>
-                <textarea id="order-comment" rows="5" placeholder="Опиши свои идеи, пожелания, ссылки на референсы..."></textarea>
-                <button class="btn-next" onclick="submitOrder()">Отправить Заказ</button>
-            </div>
-
+    <!-- 3D Загрузочный экран -->
+    <div id="loader">
+        <div class="cross-3d">
+            <div class="cross-vertical"></div>
+            <div class="cross-horizontal"></div>
         </div>
     </div>
 
-    <!-- ИСПРАВЛЕННЫЙ ФИЛЬТР (уменьшено размытие с 10 до 5) -->
-    <svg class="svg-filters">
-        <defs>
-            <filter id="goo">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="5" result="blur" />
-                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
-                <feComposite in="SourceGraphic" in2="goo" operator="atop" />
-            </filter>
-        </defs>
-    </svg>
+    <!-- Фронтальный визуал -->
+    <div class="ambient-background" id="parallax-bg"></div>
+    <div class="shard shard-1" id="p-shard1"></div>
+    <div class="shard shard-2" id="p-shard2"></div>
+    <div class="shard shard-3" id="p-shard3"></div>
+
+    <!-- Основной UI -->
+    <div class="main-container" id="cards-container">
+        
+        <!-- ШАГ 1: Контакты -->
+        <div class="glass-card active" id="step-1">
+            <h2>КОНТАКТЫ</h2>
+            <p>Введи данные для обратной связи</p>
+            
+            <div class="input-group">
+                <label>Имя / Псевдоним *</label>
+                <input type="text" id="user-name" placeholder="Твое имя" autocomplete="off">
+            </div>
+            
+            <div class="input-group">
+                <label>Телефон (если нужен звонок)</label>
+                <input type="tel" id="user-phone" placeholder="+7 (999) 000-00-00" autocomplete="off">
+            </div>
+
+            <div class="error-msg" id="err-1"></div>
+            
+            <button class="btn" onclick="nextStep(1, 2)">Далее ➔</button>
+        </div>
+
+        <!-- ШАГ 2: Жанры -->
+        <div class="glass-card" id="step-2">
+            <h2>ЖАНР</h2>
+            <p>Выбери стилистику звука</p>
+            
+            <div class="genre-grid">
+                <div class="option" onclick="selectGenre(this)">Поп</div>
+                <div class="option" onclick="selectGenre(this)">Рок</div>
+                <div class="option" onclick="selectGenre(this)">Поп-рок</div>
+                <div class="option" onclick="selectGenre(this)">Электронная</div>
+                <div class="option full-width" onclick="selectGenre(this)">Альтернатива</div>
+            </div>
+
+            <div class="error-msg" id="err-2"></div>
+            
+            <button class="btn" onclick="nextStep(2, 3)">Далее ➔</button>
+        </div>
+
+        <!-- ШАГ 3: Комментарий и отправка -->
+        <div class="glass-card" id="step-3">
+            <h2>ИДЕЯ</h2>
+            <p>Опиши своими словами, что именно ты хочешь</p>
+            
+            <div class="input-group">
+                <label>Комментарий / Референсы</label>
+                <textarea id="user-comment" placeholder="Хочу мрачный бас, как у..."></textarea>
+            </div>
+
+            <div class="error-msg" id="err-3"></div>
+            
+            <button class="btn gothic" onclick="submitOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+        </div>
+
+    </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.ready();
 
-        window.onload = () => {
+        // Данные заказа
+        let orderData = {
+            name: '',
+            phone: '',
+            genre: '',
+            comment: '',
+            username: tg.initDataUnsafe?.user?.username ? `@${tg.initDataUnsafe.user.username}` : 'Скрыт/Нет юзернейма'
+        };
+
+        // Логика загрузчика (1.5 секунды)
+        window.addEventListener('load', () => {
             setTimeout(() => {
                 const loader = document.getElementById('loader');
-                if(loader) {
-                    loader.style.opacity = '0';
-                    setTimeout(() => loader.remove(), 800);
-                }
+                loader.style.opacity = '0';
+                setTimeout(() => loader.style.display = 'none', 800);
             }, 1500);
-        };
-
-        document.addEventListener('mousemove', (e) => {
-            const moveX = (e.clientX - window.innerWidth / 2) / 25;
-            const moveY = (e.clientY - window.innerHeight / 2) / 25;
-            document.querySelectorAll('.smoke-orb').forEach(orb => {
-                orb.style.transform = `translate(${moveX}px, ${moveY}px)`;
-            });
-            const activeCard = document.querySelector('.glass-card.active');
-            if (activeCard) {
-                activeCard.style.transform = `rotateY(${moveX/2}deg) rotateX(${-moveY/2}deg)`;
-            }
         });
 
-        let orderData = {
-            name: '', phone: '', genre: '', comment: '',
-            username: tg.initDataUnsafe?.user?.username || 'user'
-        };
+        // Параллакс эффект при движении мыши/наклоне
+        document.addEventListener('mousemove', (e) => {
+            const x = (window.innerWidth / 2 - e.pageX) / 25;
+            const y = (window.innerHeight / 2 - e.pageY) / 25;
+            
+            document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
+            document.getElementById('p-shard1').style.transform = `translate(${x*1.5}px, ${y*1.5}px)`;
+            document.getElementById('p-shard2').style.transform = `translate(${-x*2}px, ${-y*2}px)`;
+            document.getElementById('cards-container').style.transform = `rotateX(${y/5}deg) rotateY(${-x/5}deg)`;
+        });
 
-        function selectItem(el, type) {
-            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
-            el.classList.add('selected');
-            orderData[type] = el.innerText;
+        // Выбор жанра
+        function selectGenre(element) {
+            document.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            orderData.genre = element.innerText;
+            document.getElementById('err-2').innerText = ''; // Очистка ошибки
         }
 
-        function goToStep(num) {
-            if (num === 2 && !document.getElementById('user-name').value) {
-                return tg.showAlert("Пожалуйста, введите имя!");
-            }
-            if (num === 3 && !orderData.genre) {
-                return tg.showAlert("Выберите жанр!");
+        // Переход между экранами ("Плавление пластика")
+        function nextStep(currentNum, nextNum) {
+            // Валидация
+            if (currentNum === 1) {
+                const nameInput = document.getElementById('user-name').value.trim();
+                if (!nameInput) {
+                    document.getElementById('err-1').innerText = 'Укажи имя!';
+                    return;
+                }
+                orderData.name = nameInput;
+                orderData.phone = document.getElementById('user-phone').value.trim();
+                document.getElementById('err-1').innerText = '';
             }
 
-            const current = document.querySelector('.glass-card.active');
-            current.style.opacity = '0';
-            current.style.transform = 'scale(1.1) translateY(-30px)';
+            if (currentNum === 2) {
+                if (!orderData.genre) {
+                    document.getElementById('err-2').innerText = 'Выбери жанр!';
+                    return;
+                }
+            }
+
+            const currentCard = document.getElementById(`step-${currentNum}`);
+            const nextCard = document.getElementById(`step-${nextNum}`);
+
+            // Анимация ухода текущей карточки (плавление)
+            currentCard.classList.remove('active');
+            currentCard.classList.add('melt-out');
+
+            // Подготовка следующей карточки
+            nextCard.classList.add('melt-in');
             
             setTimeout(() => {
-                current.classList.remove('active');
-                const next = document.getElementById(`step-${num}`);
-                next.classList.add('active');
-            }, 400);
+                currentCard.classList.remove('melt-out');
+                // Анимация появления следующей
+                nextCard.classList.remove('melt-in');
+                nextCard.classList.add('active');
+            }, 300); // Быстрый и плавный переход
         }
 
+        // Отправка данных боту
         function submitOrder() {
-            orderData.name = document.getElementById('user-name').value;
-            orderData.phone = document.getElementById('user-phone').value;
-            orderData.comment = document.getElementById('order-comment').value;
-            if (!orderData.comment) return tg.showAlert("Заполните детали заказа!");
+            const comment = document.getElementById('user-comment').value.trim();
+            if (!comment) {
+                document.getElementById('err-3').innerText = 'Напиши хотя бы пару слов!';
+                return;
+            }
+            orderData.comment = comment;
+
+            // Вибрация при успехе
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.notificationOccurred('success');
+            }
+
+            // Отправляем JSON боту
             tg.sendData(JSON.stringify(orderData));
         }
     </script>
