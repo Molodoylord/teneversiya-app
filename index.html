@@ -8,190 +8,169 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --glass-bg: rgba(15, 15, 18, 0.65);
-            --glass-border-top: rgba(255, 255, 255, 0.15);
-            --glass-border-bot: rgba(0, 0, 0, 0.8);
-            --accent: #b30027; /* Темный кроваво-красный */
-            --text-main: #e0e0e0;
+            --glass-bg: rgba(15, 15, 18, 0.75);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #d30033;
+            --text-main: #ffffff;
         }
         
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Montserrat', sans-serif; }
+        body, html { background-color: #020202; color: var(--text-main); overflow: hidden; height: 100vh; perspective: 1200px; }
 
-        body, html {
-            background-color: #020202;
-            color: var(--text-main);
-            overflow: hidden;
-            height: 100vh; width: 100vw;
-            perspective: 1200px;
-        }
-
-        /* --- ГЛУБОКАЯ ДЫМКА --- */
+        /* Эффект дымки */
         .ambient-bg {
-            position: fixed; top: -50%; left: -50%; width: 200%; height: 200%; z-index: 0; pointer-events: none;
-            background: 
-                radial-gradient(circle at 40% 40%, rgba(40, 0, 10, 0.9), transparent 50%),
-                radial-gradient(circle at 70% 60%, rgba(10, 10, 20, 0.8), transparent 40%),
-                radial-gradient(circle at 20% 80%, rgba(50, 0, 0, 0.4), transparent 50%);
-            filter: blur(70px) contrast(120%);
-            animation: smokePulse 15s infinite alternate ease-in-out;
+            position: fixed; inset: -50%; z-index: 0; pointer-events: none;
+            background: radial-gradient(circle at 50% 50%, rgba(40, 0, 10, 0.8), transparent 60%),
+                        radial-gradient(circle at 20% 80%, rgba(10, 10, 30, 0.7), transparent 50%);
+            filter: blur(80px); animation: smoke 20s infinite alternate ease-in-out;
         }
-        @keyframes smokePulse { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.1) translate(-2%, 2%); } }
+        @keyframes smoke { 0% { transform: scale(1); } 100% { transform: scale(1.1) translate(2%, -2%); } }
 
-        /* --- РАЗРУШЕНИЕ НА ПК (ОСЫПАЮЩИЕСЯ ОСКОЛКИ) --- */
-        .debris-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; display: none; }
+        /* Осколки для ПК */
+        .debris-container { position: absolute; inset: 0; z-index: 1; pointer-events: none; display: none; }
         @media (min-width: 768px) { .debris-container { display: block; } }
-        
-        .debris {
-            position: absolute; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8); backdrop-filter: blur(5px);
-            animation: fall linear infinite;
-        }
-        @keyframes fall {
-            0% { transform: translateY(-100px) rotate(0deg) scale(1); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg) scale(0.5); opacity: 0; }
-        }
+        .debris { position: absolute; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); animation: fall linear infinite; }
+        @keyframes fall { 0% { transform: translateY(-100px) rotate(0deg); opacity: 0; } 10% { opacity: 1; } 90% { opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
 
-        /* --- 3D КРЕСТ (ЗАГРУЗКА) --- */
-        #loader {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; justify-content: center; align-items: center; transition: 0.8s ease;
-        }
-        .cross-3d { width: 50px; height: 120px; position: relative; transform-style: preserve-3d; animation: floatCross 2s infinite alternate ease-in-out; }
-        .c-vert, .c-horiz { position: absolute; background: linear-gradient(to bottom, #333, #050505); border: 1px solid #222; box-shadow: 0 0 20px rgba(179,0,39,0.5); }
-        .c-vert { width: 20px; height: 120px; left: 15px; }
-        .c-horiz { width: 80px; height: 20px; left: -15px; top: 30px; }
-        @keyframes floatCross { 0% { transform: rotateY(0deg) translateY(0); } 100% { transform: rotateY(20deg) translateY(-10px); } }
+        /* Лоадер 3D Крест */
+        #loader { position: fixed; inset: 0; background: #000; z-index: 9999; display: flex; justify-content: center; align-items: center; transition: 0.8s; }
+        .cross-3d { width: 40px; height: 100px; position: relative; transform-style: preserve-3d; animation: rot 2s infinite linear; }
+        .c-v, .c-h { position: absolute; background: #222; border: 1px solid #444; box-shadow: 0 0 15px var(--accent); }
+        .c-v { width: 15px; height: 100px; left: 12.5px; }
+        .c-h { width: 60px; height: 15px; top: 25px; left: -10px; }
+        @keyframes rot { from { transform: rotateY(0deg); } to { transform: rotateY(360deg); } }
 
-        /* --- ДОРОГОЕ СТЕКЛО --- */
+        /* Контейнер и Стекло */
         .main-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 10; padding: 20px; }
-        
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(50px) saturate(180%);
-            -webkit-backdrop-filter: blur(50px) saturate(180%);
-            border-top: 1px solid var(--glass-border-top);
-            border-left: 1px solid var(--glass-border-top);
-            border-bottom: 1px solid var(--glass-border-bot);
-            border-right: 1px solid var(--glass-border-bot);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.9), inset 0 0 20px rgba(255,255,255,0.02);
-            border-radius: 20px; width: 100%; max-width: 420px; padding: 30px;
-            position: absolute; opacity: 0; visibility: hidden; transform: scale(0.9) translateY(20px);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-            display: flex; flex-direction: column; gap: 15px;
+            background: var(--glass-bg); backdrop-filter: blur(40px); border: 1px solid var(--glass-border);
+            border-radius: 24px; width: 100%; max-width: 400px; padding: 25px;
+            position: absolute; opacity: 0; visibility: hidden; transform: scale(0.9);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex; flex-direction: column; gap: 12px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
         }
-        .glass-card.active { opacity: 1; visibility: visible; transform: scale(1) translateY(0); }
-        
-        /* Эффект плавления при смене экранов */
-        .glass-card.melt-out { transform: scale(1.05) skewX(2deg) translateY(-30px); opacity: 0; filter: blur(15px) contrast(150%); }
-        .glass-card.melt-in { transform: scale(0.9) skewX(-2deg) translateY(30px); opacity: 0; filter: blur(15px) contrast(150%); }
+        .glass-card.active { opacity: 1; visibility: visible; transform: scale(1); }
+        .glass-card.melt-out { transform: scale(1.1) translateY(-20px) skewX(2deg); opacity: 0; filter: blur(10px); }
 
-        h2 { font-weight: 900; text-transform: uppercase; font-size: 22px; text-align: center; letter-spacing: 2px; text-shadow: 0 5px 15px rgba(0,0,0,0.8); }
-        p.sub { font-size: 12px; color: #888; text-align: center; margin-bottom: 10px; }
+        h2 { font-weight: 900; text-align: center; letter-spacing: 2px; font-size: 20px; margin-bottom: 5px; }
+        p.sub { font-size: 11px; color: #888; text-align: center; margin-bottom: 10px; }
 
-        /* --- ИНПУТЫ И РАЗРЫВ ТЕКСТА --- */
-        .input-group label { font-size: 11px; color: #aaa; text-transform: uppercase; font-weight: 700; margin-bottom: 5px; display: block; }
+        /* Инпуты и Глитч */
         input, textarea {
-            width: 100%; background: rgba(5,5,8,0.7); border: 1px solid rgba(255,255,255,0.1); color: #fff;
-            padding: 15px; border-radius: 10px; font-size: 15px; outline: none; transition: 0.3s;
-            box-shadow: inset 0 5px 15px rgba(0,0,0,0.8);
+            width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: #fff;
+            padding: 14px; border-radius: 12px; font-size: 15px; outline: none; transition: 0.3s;
         }
-        textarea { resize: none; height: 90px; }
-
-        /* Эффект плавления/глитча при фокусе */
-        input:focus, textarea:focus {
-            background: rgba(20,0,5,0.9);
-            border-color: var(--accent);
-            color: #fff;
-            animation: inputGlitch 0.2s infinite alternate;
+        input:focus, textarea:focus { 
+            border-color: var(--accent); 
+            animation: glitch 0.3s infinite;
+            background: rgba(30, 0, 5, 0.6);
         }
-        @keyframes inputGlitch {
-            0% { box-shadow: 0 0 10px rgba(179,0,39,0.3), inset 0 2px 10px rgba(0,0,0,0.8); text-shadow: 2px 0 0 rgba(255,0,0,0.5), -2px 0 0 rgba(0,0,255,0.5); }
-            100% { box-shadow: 0 0 25px rgba(179,0,39,0.8), inset 0 5px 20px rgba(0,0,0,1); text-shadow: -2px 1px 0 rgba(255,0,0,0.5), 2px -1px 0 rgba(0,0,255,0.5); }
+        @keyframes glitch {
+            0% { transform: translate(1px, 0); } 50% { transform: translate(-1px, 1px); } 100% { transform: translate(0, -1px); }
         }
 
-        /* Кнопки выбора (Сетка) */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .grid-1 { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        /* Кнопки и Опции */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         .option {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08);
-            padding: 14px 5px; text-align: center; border-radius: 10px; cursor: pointer;
-            font-weight: 700; font-size: 12px; text-transform: uppercase; transition: 0.3s;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            padding: 12px 5px; text-align: center; border-radius: 12px; cursor: pointer;
+            font-weight: 700; font-size: 11px; text-transform: uppercase; transition: 0.2s;
         }
-        .option.selected { background: var(--accent); border-color: var(--accent); box-shadow: 0 5px 20px rgba(179,0,39,0.6); color: #fff; transform: scale(1.02); }
+        .option.selected { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent); }
 
+        .btn-row { display: flex; gap: 10px; margin-top: 10px; }
         .btn {
-            background: #fff; color: #000; border: none; padding: 16px; border-radius: 10px;
-            font-weight: 900; text-transform: uppercase; cursor: pointer; margin-top: 10px; transition: 0.3s; width: 100%;
+            background: #fff; color: #000; border: none; padding: 15px; border-radius: 12px;
+            font-weight: 900; text-transform: uppercase; cursor: pointer; flex: 2;
         }
-        .btn:active { transform: scale(0.95); }
-        .btn.gothic { background: var(--accent); color: #fff; box-shadow: 0 5px 20px rgba(179,0,39,0.5); }
+        .btn-back { background: rgba(255,255,255,0.1); color: #fff; flex: 1; font-weight: 400; }
+        .btn.gothic { background: var(--accent); color: #fff; }
 
-        .price-display { text-align: center; font-size: 18px; font-weight: 900; color: #fff; margin-top: 10px; text-shadow: 0 0 15px rgba(255,255,255,0.5); display: none; }
-        .error-msg { color: var(--accent); font-size: 11px; text-align: center; height: 12px; font-weight: bold; }
+        .price-tag { text-align: center; font-size: 20px; font-weight: 900; color: #fff; margin: 10px 0; text-shadow: 0 0 10px var(--accent); }
+        
+        /* Чекбокс для текста */
+        .checkbox-container {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; margin-top: 5px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="loader"><div class="cross-3d"><div class="c-vert"></div><div class="c-horiz"></div></div></div>
-
-    <div class="ambient-bg" id="parallax-bg"></div>
+    <div id="loader"><div class="cross-3d"><div class="c-v"></div><div class="c-h"></div></div></div>
+    <div class="ambient-bg"></div>
     <div class="debris-container" id="debris"></div>
 
-    <div class="main-container" id="cards-container">
+    <div class="main-container">
 
         <div class="glass-card active" id="step-1">
             <h2>КОНТАКТЫ</h2>
-            <p class="sub">Данные для связи</p>
-            <div class="input-group">
-                <label>Имя / Псевдоним *</label>
-                <input type="text" id="user-name" placeholder="Твое имя" autocomplete="off">
-            </div>
-            <div class="input-group">
-                <label>Телефон (опционально)</label>
-                <input type="tel" id="user-phone" placeholder="+7 (999) 000-00-00" autocomplete="off">
-            </div>
-            <div class="error-msg" id="err-1"></div>
-            <button class="btn" onclick="nextStep(1, 2)">Далее ➔</button>
+            <p class="sub">Представься в готическом стиле</p>
+            <input type="text" id="u-name" placeholder="Имя / Псевдоним">
+            <input type="tel" id="u-phone" placeholder="Телефон (если нужно)">
+            <button class="btn" onclick="next(1, 2)">Далее ➔</button>
         </div>
 
         <div class="glass-card" id="step-2">
             <h2>УСЛУГА</h2>
-            <p class="sub">Что именно нужно сделать?</p>
-            <div class="grid-1">
-                <div class="option" onclick="selectItem('service', this)">Сведение</div>
-                <div class="option" onclick="selectItem('service', this)">Создание текста</div>
-                <div class="option" onclick="selectItem('service', this)">Аранжировка</div>
-                <div class="option" onclick="selectItem('service', this)">Помощь с треком</div>
+            <p class="sub">Что создаем сегодня?</p>
+            <div class="grid" style="grid-template-columns: 1fr;">
+                <div class="option" onclick="sel('service', this)">Сведение</div>
+                <div class="option" onclick="sel('service', this)">Создание текста</div>
+                <div class="option" onclick="sel('service', this)">Аранжировка</div>
+                <div class="option" onclick="sel('service', this)">Помощь с треком</div>
+                <div class="option" onclick="sel('service', this)">Трек под ключ</div>
             </div>
-            <div class="error-msg" id="err-2"></div>
-            <button class="btn" onclick="nextStep(2, 3)">Далее ➔</button>
+            <div id="text-option" class="checkbox-container" style="display:none;">
+                <span>Нужен текст?</span>
+                <input type="checkbox" id="need-text" checked style="width: 20px; height: 20px;" onchange="updatePrice()">
+            </div>
+            <div class="btn-row">
+                <button class="btn btn-back" onclick="back(2, 1)">⬅</button>
+                <button class="btn" onclick="next(2, 3)">Далее</button>
+            </div>
         </div>
 
         <div class="glass-card" id="step-3">
             <h2>ЖАНР</h2>
-            <p class="sub">От жанра зависит итоговая стоимость</p>
-            <div class="grid-2">
-                <div class="option" onclick="selectItem('genre', this)">Поп</div>
-                <div class="option" onclick="selectItem('genre', this)">Рок</div>
-                <div class="option" onclick="selectItem('genre', this)">Поп-рок</div>
-                <div class="option" onclick="selectItem('genre', this)">Электронная</div>
-                <div class="option" style="grid-column: span 2;" onclick="selectItem('genre', this)">Альтернатива</div>
+            <p class="sub">Атмосфера звука</p>
+            <div class="grid">
+                <div class="option" onclick="sel('genre', this)">Поп</div>
+                <div class="option" onclick="sel('genre', this)">Рок</div>
+                <div class="option" onclick="sel('genre', this)">Поп-рок</div>
+                <div class="option" onclick="sel('genre', this)">Электронная</div>
+                <div class="option" style="grid-column: span 2;" onclick="sel('genre', this)">Альтернатива</div>
             </div>
-            <div class="price-display" id="calc-price">ИТОГО: 0₽</div>
-            <div class="error-msg" id="err-3"></div>
-            <button class="btn" onclick="nextStep(3, 4)">Далее ➔</button>
+            <div class="btn-row">
+                <button class="btn btn-back" onclick="back(3, 2)">⬅</button>
+                <button class="btn" onclick="next(3, 4)">Далее</button>
+            </div>
         </div>
 
         <div class="glass-card" id="step-4">
-            <h2>ИДЕЯ</h2>
-            <p class="sub">Опиши пожелания</p>
-            <div class="input-group">
-                <textarea id="user-comment" placeholder="Хочу мрачный звук, реф - такой-то трек..."></textarea>
+            <h2>КАЧЕСТВО</h2>
+            <p class="sub">Уровень проработки деталей</p>
+            <div class="grid" style="grid-template-columns: 1fr;">
+                <div class="option" onclick="sel('quality', this)">Базовое (-10% цены)</div>
+                <div class="option" onclick="sel('quality', this)">Среднее (-5% цены)</div>
+                <div class="option" onclick="sel('quality', this)">Наилучшее (+5% цены)</div>
             </div>
-            <div class="error-msg" id="err-4"></div>
-            <button class="btn gothic" onclick="submitOrder()">ОТПРАВИТЬ ЗАКАЗ</button>
+            <div class="price-tag" id="final-price">0 ₽</div>
+            <div class="btn-row">
+                <button class="btn btn-back" onclick="back(4, 3)">⬅</button>
+                <button class="btn" onclick="next(4, 5)">Далее</button>
+            </div>
+        </div>
+
+        <div class="glass-card" id="step-5">
+            <h2>ИТОГ</h2>
+            <p class="sub">Опиши идею или прикрепи ссылку на реф</p>
+            <textarea id="u-comm" placeholder="Твои пожелания..."></textarea>
+            <div class="btn-row">
+                <button class="btn btn-back" onclick="back(5, 4)">⬅</button>
+                <button class="btn gothic" onclick="send()">ОТПРАВИТЬ</button>
+            </div>
         </div>
 
     </div>
@@ -199,91 +178,85 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready();
 
-        let orderData = { 
-            name: '', phone: '', service: '', genre: '', price: '', comment: '',
-            username: tg.initDataUnsafe?.user?.username ? `@${tg.initDataUnsafe.user.username}` : 'Скрыт'
+        let data = { name:'', phone:'', service:'', genre:'', quality:'', price: 0, comment:'', textNeeded: true };
+
+        // СРЕДНИЕ ЦЕНЫ
+        const basePrices = {
+            'Сведение': 5000,
+            'Создание текста': 3000,
+            'Аранжировка': 12000,
+            'Помощь с треком': 4000,
+            'Трек под ключ': 25000 // С текстом
         };
 
-        // --- МАТРИЦА ЦЕН (ПОМЕНЯЙ ЦИФРЫ ПОД СЕБЯ) ---
-        const priceList = {
-            'Поп': { 'Сведение': '5000₽', 'Создание текста': '3000₽', 'Аранжировка': '10000₽', 'Помощь с треком': '2000₽' },
-            'Рок': { 'Сведение': '6000₽', 'Создание текста': '3000₽', 'Аранжировка': '12000₽', 'Помощь с треком': '2500₽' },
-            'Поп-рок': { 'Сведение': '5500₽', 'Создание текста': '3000₽', 'Аранжировка': '11000₽', 'Помощь с треком': '2500₽' },
-            'Электронная': { 'Сведение': '4500₽', 'Создание текста': '2000₽', 'Аранжировка': '9000₽', 'Помощь с треком': '2000₽' },
-            'Альтернатива': { 'Сведение': '6500₽', 'Создание текста': '3500₽', 'Аранжировка': '13000₽', 'Помощь с треком': '3000₽' }
-        };
+        const qualityMods = { 'Базовое': 0.9, 'Среднее': 0.95, 'Наилучшее': 1.05 };
 
-        // Лоадер
-        window.addEventListener('load', () => {
-            setTimeout(() => { document.getElementById('loader').style.opacity = '0'; setTimeout(() => document.getElementById('loader').style.display = 'none', 800); }, 1500);
-            createDebris();
-        });
-
-        // Генерация осыпающихся осколков для ПК
-        function createDebris() {
-            const container = document.getElementById('debris');
-            for(let i=0; i<15; i++) {
-                let div = document.createElement('div');
-                div.className = 'debris';
-                div.style.left = Math.random() * 100 + 'vw';
-                div.style.width = Math.random() * 40 + 10 + 'px';
-                div.style.height = div.style.width;
-                div.style.clipPath = `polygon(${Math.random()*100}% 0, 100% ${Math.random()*100}%, ${Math.random()*100}% 100%, 0 ${Math.random()*100}%)`;
-                div.style.animationDuration = Math.random() * 5 + 5 + 's';
-                div.style.animationDelay = Math.random() * 5 + 's';
-                container.appendChild(div);
+        window.onload = () => {
+            setTimeout(() => document.getElementById('loader').style.display='none', 1500);
+            for(let i=0;i<10;i++){
+                let d = document.createElement('div'); d.className='debris';
+                d.style.left=Math.random()*100+'vw'; d.style.width=d.style.height=Math.random()*30+10+'px';
+                d.style.animationDuration=Math.random()*5+5+'s'; document.getElementById('debris').appendChild(d);
             }
-        }
+        };
 
-        // Параллакс
-        document.addEventListener('mousemove', (e) => {
-            const x = (window.innerWidth / 2 - e.pageX) / 30; const y = (window.innerHeight / 2 - e.pageY) / 30;
-            document.getElementById('parallax-bg').style.transform = `translate(${x}px, ${y}px)`;
-            document.getElementById('cards-container').style.transform = `rotateX(${y/3}deg) rotateY(${-x/3}deg)`;
-        });
-
-        // Выбор элементов и расчет цены
-        function selectItem(type, element) {
-            element.parentElement.querySelectorAll('.option').forEach(el => el.classList.remove('selected'));
-            element.classList.add('selected');
-            orderData[type] = element.innerText;
+        function sel(type, el) {
+            el.parentElement.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            data[type] = el.innerText.split(' (')[0]; 
             
-            if(type === 'service') document.getElementById('err-2').innerText = '';
-            if(type === 'genre') {
-                document.getElementById('err-3').innerText = '';
-                // Считаем цену
-                if(orderData.service && orderData.genre) {
-                    orderData.price = priceList[orderData.genre][orderData.service] || 'По договоренности';
-                    const pDisp = document.getElementById('calc-price');
-                    pDisp.innerText = `ИТОГО: ${orderData.price}`;
-                    pDisp.style.display = 'block';
-                }
+            if(type === 'service') {
+                document.getElementById('text-option').style.display = (data.service === 'Трек под ключ') ? 'flex' : 'none';
             }
+            updatePrice();
         }
 
-        function nextStep(curr, next) {
-            if (curr === 1) {
-                if (!document.getElementById('user-name').value.trim()) return document.getElementById('err-1').innerText = 'Укажи имя!';
-                orderData.name = document.getElementById('user-name').value.trim();
-                orderData.phone = document.getElementById('user-phone').value.trim();
-                document.getElementById('err-1').innerText = '';
+        function updatePrice() {
+            if(!data.service || !data.genre || !data.quality) return;
+            
+            let price = basePrices[data.service] || 0;
+            
+            // Если трек под ключ и текст не нужен, вычитаем стоимость текста
+            if(data.service === 'Трек под ключ' && !document.getElementById('need-text').checked) {
+                price -= 3000;
+                data.textNeeded = false;
+            } else {
+                data.textNeeded = true;
             }
-            if (curr === 2 && !orderData.service) return document.getElementById('err-2').innerText = 'Выбери услугу!';
-            if (curr === 3 && !orderData.genre) return document.getElementById('err-3').innerText = 'Выбери жанр!';
 
-            const cCard = document.getElementById(`step-${curr}`);
-            const nCard = document.getElementById(`step-${next}`);
-            cCard.classList.remove('active'); cCard.classList.add('melt-out'); nCard.classList.add('melt-in');
-            setTimeout(() => { cCard.classList.remove('melt-out'); nCard.classList.remove('melt-in'); nCard.classList.add('active'); }, 300);
+            // Модификатор качества
+            price = price * (qualityMods[data.quality] || 1);
+            
+            data.price = Math.round(price);
+            document.getElementById('final-price').innerText = data.price + ' ₽';
         }
 
-        function submitOrder() {
-            if (!document.getElementById('user-comment').value.trim()) return document.getElementById('err-4').innerText = 'Опиши идею!';
-            orderData.comment = document.getElementById('user-comment').value.trim();
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            tg.sendData(JSON.stringify(orderData));
+        function next(c, n) {
+            if(c===1 && !document.getElementById('u-name').value) return;
+            if(c===2 && !data.service) return;
+            if(c===3 && !data.genre) return;
+            if(c===4 && !data.quality) return;
+
+            const cur = document.getElementById('step-'+c);
+            const nxt = document.getElementById('step-'+n);
+            cur.classList.remove('active'); cur.classList.add('melt-out');
+            setTimeout(() => { cur.classList.remove('melt-out'); nxt.classList.add('active'); }, 300);
+        }
+
+        function back(c, p) {
+            const cur = document.getElementById('step-'+c);
+            const prv = document.getElementById('step-'+p);
+            cur.classList.remove('active');
+            setTimeout(() => { prv.classList.add('active'); }, 50);
+        }
+
+        function send() {
+            data.name = document.getElementById('u-name').value;
+            data.phone = document.getElementById('u-phone').value;
+            data.comment = document.getElementById('u-comm').value;
+            data.username = tg.initDataUnsafe?.user?.username ? '@'+tg.initDataUnsafe.user.username : 'n/a';
+            tg.sendData(JSON.stringify(data));
         }
     </script>
 </body>
