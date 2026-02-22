@@ -3,244 +3,253 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>TENEVERSIYA | GOTHIC SOUND</title>
+    <title>TENEVERSIYA | SOUND DESIGN</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-black: #050505;
-            --accent-red: #8b0000;
-            --bright-red: #ff0000;
-            --glass-bg: rgba(10, 10, 10, 0.8);
-            --glass-border: rgba(255, 0, 0, 0.15);
-            --text-gray: #a0a0a0;
+            --accent: #ff003c;
+            --glass: rgba(255, 255, 255, 0.05);
+            --border: rgba(255, 255, 255, 0.12);
+            --bg: #000000;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
+        body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg-black);
+            background: var(--bg);
             color: #fff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+            height: 100%;
         }
 
-        /* МРАЧНЫЙ ФОН */
-        .bg-overlay {
+        /* --- ЭФФЕКТ ДЫМКИ И ФОНА --- */
+        .canvas-container {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 50%, #1a0000 0%, #050505 100%);
-            z-index: -2;
+            z-index: -1;
+            filter: blur(60px);
+            opacity: 0.6;
         }
 
-        /* ЭКРАН ЗАГРУЗКИ (КРЕСТ) */
+        .smoke-orb {
+            position: absolute;
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, var(--accent) 0%, transparent 70%);
+            border-radius: 50%;
+            transition: transform 0.2s ease-out;
+        }
+
+        /* --- ЛОАДЕР (КРЕСТ) --- */
         #loader {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
+            inset: 0; background: #000;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000; transition: 0.8s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .cross-container {
-            width: 60px; height: 100px;
+        .loader-cross {
+            width: 60px; height: 60px;
             position: relative;
-            animation: pulse-glow 2s ease-in-out infinite;
+            animation: spin 1.2s infinite;
+        }
+        .loader-cross::before, .loader-cross::after {
+            content: ''; position: absolute; background: var(--accent);
+            box-shadow: 0 0 20px var(--accent);
+        }
+        .loader-cross::before { top: 0; left: 27px; width: 6px; height: 60px; }
+        .loader-cross::after { top: 27px; left: 0; width: 60px; height: 6px; }
+
+        @keyframes spin { 100% { transform: rotate(450deg); } }
+
+        /* --- ГЛАВНЫЙ КОНТЕЙНЕР --- */
+        .app-wrapper {
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; perspective: 1000px;
         }
 
-        .cross-v { width: 16px; height: 100px; background: var(--bright-red); position: absolute; left: 22px; box-shadow: 0 0 25px var(--bright-red); }
-        .cross-h { width: 60px; height: 16px; background: var(--bright-red); position: absolute; top: 30px; box-shadow: 0 0 25px var(--bright-red); }
-
-        @keyframes pulse-glow {
-            0%, 100% { transform: scale(1); opacity: 0.7; }
-            50% { transform: scale(1.1); opacity: 1; }
+        /* ЭФФЕКТ РАСПЛАВЛЕНИЯ (Gooey Transition) */
+        .page-transition-container {
+            filter: url('#goo'); /* Ссылка на SVG фильтр внизу */
+            width: 100%; max-width: 400px;
+            position: relative;
         }
 
-        /* СТРАНИЦЫ */
-        .page { display: none; padding: 20px; max-width: 500px; margin: 0 auto; animation: slideUp 0.4s ease; }
-        .page.active { display: block; }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .logo-box { text-align: center; margin-bottom: 30px; }
-        .logo-main { font-size: 2.2rem; letter-spacing: 6px; text-shadow: 0 0 10px var(--accent-red); margin: 0; }
-        
-        /* КАРТОЧКИ-СТЕКЛО */
         .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            padding: 18px;
-            margin-bottom: 15px;
-            position: relative;
+            background: var(--glass);
+            backdrop-filter: blur(40px) saturate(180%);
+            -webkit-backdrop-filter: blur(40px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 35px;
+            padding: 30px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+            display: none;
+            flex-direction: column;
+            transform-style: preserve-3d;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .glass-card.active { display: flex; animation: slideIn 0.8s forwards; }
+
+        @keyframes slideIn {
+            0% { opacity: 0; transform: scale(0.8) translateY(100px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        h1 { font-weight: 800; font-size: 24px; margin-bottom: 20px; letter-spacing: -1px; }
+
+        /* Кнопки и инпуты */
+        .option {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            padding: 18px; border-radius: 20px;
+            margin-bottom: 12px; cursor: pointer;
             transition: 0.3s;
-            cursor: pointer;
+            display: flex; justify-content: space-between;
+        }
+        .option.selected {
+            background: var(--accent);
+            border-color: transparent;
+            transform: scale(1.02) translateZ(20px);
         }
 
-        .glass-card:active { transform: scale(0.98); border-color: var(--bright-red); }
-        .glass-card.selected { border-color: var(--bright-red); background: rgba(139, 0, 0, 0.1); }
-
-        .genre-name { font-size: 1.3rem; margin: 0; letter-spacing: 2px; }
-        .price-info { color: var(--bright-red); font-size: 0.9rem; margin-top: 8px; font-weight: bold; }
-
-        /* СПИСОК УСЛУГ */
-        .service-row { display: flex; justify-content: space-between; align-items: center; }
-        .check { width: 22px; height: 22px; border: 1px solid var(--accent-red); }
-        .selected .check { background: var(--bright-red); box-shadow: 0 0 10px var(--bright-red); }
-
-        textarea {
-            width: 100%; height: 100px; background: #000; border: 1px solid var(--glass-border);
-            color: #fff; padding: 12px; margin-top: 10px; outline: none;
+        input, textarea {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            padding: 15px; border-radius: 15px;
+            color: #fff; margin-bottom: 15px;
+            font-family: inherit; width: 100%; box-sizing: border-box;
         }
 
-        .btn {
-            width: 100%; padding: 18px; background: var(--accent-red); color: #fff;
-            border: none; text-transform: uppercase; letter-spacing: 3px; font-weight: bold; margin-top: 20px;
+        .btn-next {
+            background: #fff; color: #000;
+            padding: 20px; border-radius: 22px;
+            border: none; font-weight: 700; cursor: pointer;
+            margin-top: 10px; transition: 0.3s;
         }
-        .total-display { text-align: center; font-size: 1.8rem; margin: 20px 0; color: #fff; }
+        .btn-next:active { transform: scale(0.95); }
+
+        /* SVG ФИЛЬТР ДЛЯ ПЛАВЛЕНИЯ */
+        .svg-filters { position: absolute; visibility: hidden; }
     </style>
 </head>
 <body>
 
-    <div class="bg-overlay"></div>
+    <div class="canvas-container" id="smoke-bg">
+        <div class="smoke-orb" style="top: 20%; left: 20%;"></div>
+        <div class="smoke-orb" style="bottom: 10%; right: 10%; background: #222;"></div>
+    </div>
 
-    <div id="loader">
-        <div class="cross-container">
-            <div class="cross-v"></div>
-            <div class="cross-h"></div>
+    <div id="loader"><div class="loader-cross"></div></div>
+
+    <div class="app-wrapper">
+        <div class="page-transition-container">
+            
+            <div id="step-1" class="glass-card active">
+                <h1>CONTACTS</h1>
+                <input type="text" id="user-name" placeholder="Твоё Имя">
+                <input type="tel" id="user-phone" placeholder="Телефон (необязательно)">
+                <p style="font-size: 12px; color: #777;">Ник в Telegram подтянется автоматически</p>
+                <button class="btn-next" onclick="goToStep(2)">Далее</button>
+            </div>
+
+            <div id="step-2" class="glass-card">
+                <h1>GENRE</h1>
+                <div id="genre-box">
+                    <div class="option" onclick="selectItem(this, 'genre')">Поп</div>
+                    <div class="option" onclick="selectItem(this, 'genre')">Рок</div>
+                    <div class="option" onclick="selectItem(this, 'genre')">Поп-рок</div>
+                    <div class="option" onclick="selectItem(this, 'genre')">Альтернатива</div>
+                    <div class="option" onclick="selectItem(this, 'genre')">Электронная</div>
+                </div>
+                <button class="btn-next" onclick="goToStep(3)">Выбрать</button>
+            </div>
+
+            <div id="step-3" class="glass-card">
+                <h1>DETAILS</h1>
+                <textarea id="order-comment" rows="5" placeholder="Опиши свою идею, скинь референсы..."></textarea>
+                <button class="btn-next" onclick="submitOrder()">Отправить Заказ</button>
+            </div>
+
         </div>
     </div>
 
-    <!-- ВЫБОР ЖАНРА -->
-    <div id="p-genres" class="page active">
-        <div class="logo-box">
-            <h1 class="logo-main">TENEVERSIYA</h1>
-            <p style="color:var(--accent-red); font-size: 0.7rem; letter-spacing: 3px;">SOUND ENGINEERING</p>
-        </div>
-
-        <div class="glass-card" onclick="selG('ROCK', 1.3)">
-            <h2 class="genre-name">ROCK / METAL</h2>
-            <div class="price-info">Сложность: Высокая (x1.3)</div>
-        </div>
-        <div class="glass-card" onclick="selG('POP', 1.0)">
-            <h2 class="genre-name">POP / MELODIC</h2>
-            <div class="price-info">Сложность: Стандарт (x1.0)</div>
-        </div>
-        <div class="glass-card" onclick="selG('ELECTRONIC', 1.1)">
-            <h2 class="genre-name">ELECTRONIC</h2>
-            <div class="price-info">Сложность: Средняя (x1.1)</div>
-        </div>
-        <div class="glass-card" onclick="selG('HOUSE', 1.05)">
-            <h2 class="genre-name">HOUSE / TECH</h2>
-            <div class="price-info">Сложность: Базовая (x1.05)</div>
-        </div>
-    </div>
-
-    <!-- ВЫБОР УСЛУГ -->
-    <div id="p-services" class="page">
-        <button onclick="nav('p-genres')" style="background:none; border:none; color:var(--text-gray); cursor:pointer; margin-bottom:15px;">← К ЖАНРАМ</button>
-        <h2 id="cur-g" style="margin-bottom:20px; letter-spacing:2px; color:var(--bright-red)"></h2>
-        <div id="serv-list"></div>
-        <div class="total-display"><span id="total-val">0</span> ₽</div>
-        <button class="btn" onclick="nav('p-final')">ДАЛЕЕ</button>
-    </div>
-
-    <!-- ФИНАЛ -->
-    <div id="p-final" class="page">
-        <button onclick="nav('p-services')" style="background:none; border:none; color:var(--text-gray); cursor:pointer; margin-bottom:15px;">← НАЗАД</button>
-        <h2 style="letter-spacing:2px;">КОММЕНТАРИЙ</h2>
-        <div class="glass-card">
-            <p style="font-size:0.8rem; color:var(--text-gray)">Опиши референсы или пожелания:</p>
-            <textarea id="comment" placeholder="Напиши здесь..."></textarea>
-        </div>
-        <div class="total-display">ИТОГО: <span id="total-val-f">0</span> ₽</div>
-        <button class="btn" onclick="sendOrder()">ЗАКАЗАТЬ</button>
-    </div>
+    <svg class="svg-filters">
+        <defs>
+            <filter id="goo">
+                <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+                <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9" result="goo" />
+                <feComposite in="SourceGraphic" in2="goo" operator="atop" />
+            </filter>
+        </defs>
+    </svg>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
+        tg.enableClosingConfirmation();
 
-        // Скрываем загрузку через 1.5 сек принудительно
-        setTimeout(() => {
-            document.getElementById('loader').style.opacity = '0';
-            setTimeout(() => document.getElementById('loader').style.display = 'none', 500);
-        }, 1500);
+        // Исправление лоадера
+        window.onload = () => {
+            setTimeout(() => {
+                document.getElementById('loader').style.opacity = '0';
+                setTimeout(() => document.getElementById('loader').remove(), 800);
+            }, 1800);
+        };
 
-        let curG = "";
-        let mult = 1.0;
-        let selected = [];
-
-        const prices = [
-            { id: 'mix', name: 'Сведение', base: 5000 },
-            { id: 'full', name: 'Трек под ключ', base: 25000 },
-            { id: 'text', name: 'Текст песни', base: 4500 },
-            { id: 'inst', name: 'Инструментал', base: 12000 },
-            { id: 'help', name: 'Помощь с проектом', base: 3500 }
-        ];
-
-        function nav(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
-        }
-
-        function selG(name, m) {
-            curG = name;
-            mult = m;
-            document.getElementById('cur-g').innerText = name;
-            render();
-            nav('p-services');
-        }
-
-        function toggle(id) {
-            if (selected.includes(id)) selected = selected.filter(x => x !== id);
-            else selected.push(id);
-            render();
-        }
-        function render() {
-            let total = 0;
-            const list = document.getElementById('serv-list');
-            list.innerHTML = '';
+        // Параллакс эффект дымки и карт
+        document.addEventListener('mousemove', (e) => {
+            const moveX = (e.clientX - window.innerWidth / 2) / 20;
+            const moveY = (e.clientY - window.innerHeight / 2) / 20;
             
-            prices.forEach(s => {
-                const p = Math.round(s.base * mult);
-                const isSel = selected.includes(s.id);
-                if (isSel) total += p;
-
-                const div = document.createElement('div');
-                div.className = glass-card service-row ${isSel ? 'selected' : ''};
-                div.onclick = () => toggle(s.id);
-                div.innerHTML = 
-                    <div>
-                        <div style="font-weight:bold">${s.name}</div>
-                        <div style="font-size:0.8rem; opacity:0.6">${p} ₽</div>
-                    </div>
-                    <div class="check"></div>
-                ;
-                list.appendChild(div);
+            document.querySelectorAll('.smoke-orb').forEach(orb => {
+                orb.style.transform = `translate(${moveX}px, ${moveY}px)`;
             });
 
-            document.getElementById('total-val').innerText = total;
-            document.getElementById('total-val-f').innerText = total;
+            const activeCard = document.querySelector('.glass-card.active');
+            if (activeCard) {
+                activeCard.style.transform = `rotateY(${moveX/2}deg) rotateX(${-moveY/2}deg)`;
+            }
+        });
+
+        let orderData = {
+            name: '', phone: '', genre: '', comment: '', 
+            username: tg.initDataUnsafe?.user?.username || 'Скрыт'
+        };
+
+        function selectItem(el, type) {
+            document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+            el.classList.add('selected');
+            orderData[type] = el.innerText;
         }
 
-        function sendOrder() {
-            if (selected.length === 0) return tg.showAlert("Выбери услуги");
+        function goToStep(num) {
+            if (num === 2 && !document.getElementById('user-name').value) {
+                return tg.showAlert("Представься, пожалуйста!");
+            }
             
-            const data = {
-                genre: curG,
-                services: selected.map(id => prices.find(p => p.id === id).name),
-                total: document.getElementById('total-val-f').innerText,
-                comment: document.getElementById('comment').value || "Без комментария"
-            };
+            // Визуальный переход "плавление"
+            const current = document.querySelector('.glass-card.active');
+            current.style.opacity = '0';
+            current.style.transform = 'scale(1.2) translateY(-50px)';
+            
+            setTimeout(() => {
+                current.classList.remove('active');
+                const next = document.getElementById(`step-${num}`);
+                next.classList.add('active');
+            }, 400);
+        }
 
-            tg.sendData(JSON.stringify(data));
+        function submitOrder() {
+            orderData.name = document.getElementById('user-name').value;
+            orderData.phone = document.getElementById('user-phone').value;
+            orderData.comment = document.getElementById('order-comment').value;
+
+            if (!orderData.genre) return tg.showAlert("Выбери жанр!");
+
+            tg.sendData(JSON.stringify(orderData));
         }
     </script>
 </body>
 </html>
+
